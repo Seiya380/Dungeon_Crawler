@@ -12,7 +12,7 @@
     } from '$lib/game.js';
 
     // Game state
-    let gameState = $state('menu'); // 'menu', 'playing', 'victory', 'gameover'
+    let gameState = $state('menu'); // 'menu', 'loading', 'playing', 'victory', 'gameover'
     let player = $state(createPlayer());
     let currentRoom = $state(1);
     let enemy = $state(null);
@@ -29,6 +29,14 @@
     // Clear logs
     function clearLogs() {
         logs = [];
+    }
+
+    // Start loading sequence
+    function startLoadingSequence() {
+        gameState = 'loading';
+        setTimeout(() => {
+            startGame();
+        }, 3000);
     }
 
     // Start a new game
@@ -245,7 +253,7 @@
     function handleKeydown(event) {
         if (gameState === 'menu') {
             if (event.key === 'Enter' || event.key === ' ') {
-                startGame();
+                startLoadingSequence();
             }
         } else if (waitingForAction) {
             const key = event.key.toUpperCase();
@@ -292,6 +300,23 @@
                         Survivez a 3 salles pour vous echapper!<br>
                         Controles: (A)ttaquer | (P)otion | (F)uir
                     </p>
+                </div>
+            {:else if gameState === 'loading'}
+                <div class="loading-screen">
+                    <pre class="ascii-art-combat">
+        /| ________________
+  O|===|* >________________>
+        \|
+
+         O                  (@@)
+        /|\                /|__|\
+        / \                 /  \
+      [HEROS]             [MONSTRE]
+                    </pre>
+                    <p class="blink loading-text">PREPARATION DU COMBAT...</p>
+                    <div class="loading-bar">
+                        <div class="loading-progress"></div>
+                    </div>
                 </div>
             {:else}
                 <div class="logs">
@@ -402,6 +427,47 @@
 
     @keyframes blink {
         50% { opacity: 0; }
+    }
+
+    .loading-screen {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+    }
+
+    .ascii-art-combat {
+        font-size: 12px;
+        color: #fff;
+        margin-bottom: 20px;
+        font-weight: bold;
+    }
+
+    .loading-text {
+        color: #ffd700;
+        margin-bottom: 20px;
+    }
+
+    .loading-bar {
+        width: 80%;
+        height: 10px;
+        background: #333;
+        border: 1px solid #ffd700;
+        border-radius: 5px;
+        overflow: hidden;
+    }
+
+    .loading-progress {
+        width: 0%;
+        height: 100%;
+        background: #ffd700;
+        animation: progress 3s linear forwards;
+    }
+
+    @keyframes progress {
+        0% { width: 0%; }
+        100% { width: 100%; }
     }
 
     .logs {
